@@ -1,0 +1,83 @@
+C4Component
+    title Food Delivery System Architecture
+
+    Container_Boundary(frontend, "Frontend Layer") {
+        Container_Boundary(customer_ui, "Customer Interfaces") {
+            Component(web_ui, "Web Interface", "React", "Customer website")
+            Component(customer_app, "Mobile App", "React Native", "Customer mobile application")
+        }
+        
+        Container_Boundary(partner_ui, "Partner Interfaces") {
+            Component(restaurant_app, "Restaurant App", "React Native", "Restaurant management app")
+            Component(delivery_app, "Delivery App", "React Native", "Delivery partner app")
+        }
+        
+        Container_Boundary(admin_ui, "Administrative Interface") {
+            Component(admin_panel, "Admin Dashboard", "React", "System administration and monitoring")
+        }
+    }
+
+    Container_Boundary(core_services, "Core Business Services") {
+        Container_Boundary(order_management, "Order Management") {
+            Component(order_service, "Order Processing", "Java Spring", "Order lifecycle management")
+            Component(payment_service, "Payment Handler", "Node.js", "Payment processing")
+        }
+
+        Container_Boundary(partner_services, "Partner Services") {
+            Component(restaurant_service, "Restaurant Manager", "Python", "Restaurant and menu management")
+            Component(delivery_service, "Delivery Handler", "Go", "Delivery tracking and assignment")
+        }
+
+        Container_Boundary(support_services, "Support Services") {
+            Component(auth_service, "Authentication", "Node.js", "User authentication/authorization")
+            Component(notification_service, "Notifications", "Node.js", "Communication service")
+            Component(analytics_service, "Analytics", "Python", "Reporting and insights")
+        }
+    }
+
+    Container_Boundary(data_layer, "Data Management Layer") {
+        Container_Boundary(storage, "Storage") {
+            ComponentDb(main_db, "Main Database", "PostgreSQL", "Primary data store")
+            ComponentDb(redis_cache, "Cache Layer", "Redis", "Performance optimization")
+        }
+        Container_Boundary(search, "Search") {
+            ComponentDb(elasticsearch, "Search Engine", "Elasticsearch", "Fast data retrieval")
+        }
+    }
+
+    Container_Boundary(external, "External Services") {
+        Container_Boundary(payment, "Payment Services") {
+            System_Ext(payment_gateway, "Payment Gateway", "Secure payment processing")
+        }
+        Container_Boundary(utilities, "Utility Services") {
+            System_Ext(maps_service, "Maps API", "Location services")
+            System_Ext(sms_service, "SMS Gateway", "Text messaging")
+            System_Ext(email_service, "Email Service", "Email communication")
+        }
+    }
+
+    %% Core Frontend Interactions
+    Rel(customer_ui, order_service, "Places orders")
+    Rel(restaurant_app, restaurant_service, "Manages restaurant")
+    Rel(delivery_app, delivery_service, "Updates deliveries")
+    Rel(admin_panel, analytics_service, "Monitors system")
+
+    %% Authentication
+    Rel(auth_service, main_db, "Verifies users")
+
+    %% Order Flow
+    Rel(order_service, payment_service, "Initiates payment")
+    Rel(order_service, restaurant_service, "Assigns order")
+    Rel(order_service, delivery_service, "Requests delivery")
+    Rel(order_service, notification_service, "Sends updates")
+
+    %% External Communications
+    Rel(payment_service, payment_gateway, "Processes payment")
+    Rel(delivery_service, maps_service, "Gets routes")
+    Rel(notification_service, sms_service, "Sends SMS")
+    Rel(notification_service, email_service, "Sends emails")
+
+    %% Data Layer Interactions
+    Rel(restaurant_service, elasticsearch, "Searches data")
+    Rel(order_service, redis_cache, "Caches data")
+    Rel_D(core_services, main_db, "Stores data")
